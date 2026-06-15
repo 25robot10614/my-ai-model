@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sleeping Guard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      transition: background 0.6s ease;
+    }
+
+    body.active-mode {
+      background: linear-gradient(135deg, #0F6E56 0%, #085041 50%, #1D9E75 100%) !important;
+    }
+
+    body.alert-mode {
+      background: linear-gradient(135deg, #8B0000 0%, #C0392B 50%, #E74C3C 100%) !important;
+      animation: pulse-bg 1.2s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulse-bg {
+      from { background: linear-gradient(135deg, #8B0000 0%, #C0392B 50%, #E74C3C 100%); }
+      to   { background: linear-gradient(135deg, #C0392B 0%, #E74C3C 50%, #FF6B6B 100%); }
+    }
+
+    .outer-box {
+      width: 100%;
+      max-width: 520px;
+      border-radius: 20px;
+      overflow: hidden;
+      background: #ffffff;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.2);
+      transition: box-shadow 0.6s ease;
+    }
+
+    body.active-mode .outer-box {
+      box-shadow: 0 24px 60px rgba(4, 52, 44, 0.35);
+    }
+
+    body.alert-mode .outer-box {
+      box-shadow: 0 24px 60px rgba(139, 0, 0, 0.5), 0 0 40px rgba(231, 76, 60, 0.4);
+    }
+
+    .outer-header {
+      padding: 1.4rem 1.75rem;
+      background: linear-gradient(135deg, #4e5d6c, #34495e);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: background 0.6s ease;
+    }
+
+    body.active-mode .outer-header {
+      background: linear-gradient(135deg, #0F6E56, #1D9E75);
+    }
+
+    body.alert-mode .outer-header {
+      background: linear-gradient(135deg, #8B0000, #C0392B);
+      animation: pulse-header 1.2s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulse-header {
+      from { background: linear-gradient(135deg, #8B0000, #C0392B); }
+      to   { background: linear-gradient(135deg, #C0392B, #E74C3C); }
+    }
+
+    .header-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .header-icon i { font-size: 20px; color: #ffffff; }
+
+    .header-text h1 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #ffffff;
+      letter-spacing: -0.02em;
+    }
+    .header-text p {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.7);
+      margin-top: 2px;
+    }
+
+    .status-pill {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 99px;
+      padding: 4px 10px;
+      flex-shrink: 0;
+    }
+    .status-pill .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #bdc3c7;
+      transition: background 0.4s;
+    }
+    body.active-mode .status-pill .dot {
+      background: #9FE1CB;
+    }
+    body.alert-mode .status-pill .dot {
+      background: #FF6B6B;
+      animation: blink-dot 0.6s ease-in-out infinite alternate;
+    }
+    @keyframes blink-dot {
+      from { opacity: 1; }
+      to   { opacity: 0.3; }
+    }
+    .status-pill span {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 500;
+    }
+
+    .alert-banner {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: #FFF0EE;
+      border-bottom: 2px solid #E74C3C;
+      animation: slide-down 0.3s ease;
+    }
+    @keyframes slide-down {
+      from { transform: translateY(-100%); opacity: 0; }
+      to   { transform: translateY(0);     opacity: 1; }
+    }
+    body.alert-mode .alert-banner { display: flex; }
+
+    .alert-banner i { font-size: 16px; color: #C0392B; }
+    .alert-banner span {
+      font-size: 13px;
+      font-weight: 600;
+      color: #C0392B;
+    }
+
+    .inner-box {
+      padding: 1.5rem 1.75rem;
+      background: #ffffff;
+    }
+
+    .model-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 500;
+      color: #7f8c8d;
+      background: #f1f2f6;
+      border: 1px solid #dcdde1;
+      border-radius: 99px;
+      padding: 3px 10px;
+      margin-bottom: 1.1rem;
+      transition: all 0.4s;
+    }
+    body.active-mode .model-tag {
+      color: #0F6E56;
+      background: #E1F5EE;
+      border-color: #9FE1CB;
+    }
+    body.alert-mode .model-tag {
+      color: #C0392B;
+      background: #FFF0EE;
+      border-color: #FFBDBD;
+    }
+    .model-tag .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #7f8c8d;
+      transition: background 0.4s;
+    }
+    body.active-mode .model-tag .dot { background: #1D9E75; }
+    body.alert-mode .model-tag .dot { background: #E74C3C; }
+
+    #start-btn {
+      width: 100%;
+      padding: 11px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #ffffff;
+      background: linear-gradient(135deg, #7f8c8d, #34495e);
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 1.25rem;
+    }
+    #start-btn:hover { opacity: 0.9; }
+    #start-btn:active { transform: scale(0.98); }
+    #start-btn i { font-size: 16px; }
+
+    .webcam-section {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1.25rem;
+    }
+
+    #webcam-container canvas {
+      border-radius: 10px;
+      border: 2px solid #f1f2f6;
+      display: block;
+      transition: border-color 0.4s;
+    }
+    body.active-mode #webcam-container canvas {
+      border-color: #E1F5EE;
+    }
+    body.alert-mode #webcam-container canvas {
+      border-color: #E74C3C;
+    }
+
+    .placeholder {
+      width: 200px;
+      height: 200px;
+      border: 1.5px dashed #bdc3c7;
+      border-radius: 10px;
+      background: #fafafa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .placeholder i { font-size: 28px; color: #bdc3c7; }
+    .placeholder span { font-size: 12px; color: #7f8c8d; }
+
+    .label-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #7f8c8d;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.4s;
+    }
+    body.active-mode .label-title { color: #0F6E56; }
+    body.alert-mode .label-title { color: #C0392B; }
+    
+    .label-title::before {
+      content: '';
+      width: 3px;
+      height: 12px;
+      background: #7f8c8d;
+      border-radius: 2px;
+      display: block;
+      transition: background 0.4s;
+    }
+    body.active-mode .label-title::before { background: #1D9E75; }
+    body.alert-mode .label-title::before { background: #E74C3C; }
+
+    .label-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 9px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: #fafafa;
+      border: 1px solid #f1f2f6;
+      transition: border-color 0.15s, background 0.4s;
+    }
+    .label-row:hover { border-color: #bdc3c7; }
+    
+    .label-row.sleeping-highlight {
+      background: #FFF0EE;
+      border-color: #FFBDBD;
+    }
+
+    .label-row.active-highlight {
+      background: #E1F5EE;
+      border-color: #9FE1CB;
+    }
+
+    .label-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: #2c3e50;
+      min-width: 80px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .bar-track {
+      flex: 1;
+      height: 6px;
+      background: #e1f5ee;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, #bdc3c7, #7f8c8d);
+      width: 0%;
+      transition: width 0.15s ease, background 0.4s;
+    }
+    
+    body.active-mode .bar-fill {
+      background: linear-gradient(90deg, #5DCAA5, #1D9E75);
+    }
+
+    .label-row.sleeping-highlight .bar-fill {
+      background: linear-gradient(90deg, #FF6B6B, #C0392B);
+    }
+
+    .label-prob {
+      font-size: 12px;
+      font-weight: 600;
+      color: #7f8c8d;
+      min-width: 36px;
+      text-align: right;
+      transition: color 0.4s;
+    }
+    body.active-mode .label-prob { color: #0F6E56; }
+    .label-row.sleeping-highlight .label-prob { color: #C0392B; }
+
+    .outer-footer {
+      padding: 0.8rem 1.75rem;
+      background: #fafafa;
+      border-top: 1px solid #f1f2f6;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.4s, border-color 0.4s;
+    }
+    body.active-mode .outer-footer {
+      background: #f8fdfb;
+      border-top-color: #E1F5EE;
+    }
+    body.alert-mode .outer-footer {
+      background: #FFF0EE;
+      border-top-color: #FFBDBD;
+    }
+    .outer-footer i, .outer-footer span { font-size: 12px; color: #7f8c8d; transition: color 0.4s; }
+    body.active-mode .outer-footer i, body.active-mode .outer-footer span { color: #5DCAA5; }
+    body.alert-mode .outer-footer i, body.alert-mode .outer-footer span { color: #E07070; }
+  </style>
+</head>
+<body>
+
+  <div class="outer-box">
+
+    <div class="outer-header">
+      <div class="header-icon">
+        <i class="ti ti-shield-check" id="header-icon-i"></i>
+      </div>
+      <div class="header-text">
+        <h1 id="debug-title">Sleeping Guard</h1>
+        <p>실시간 이미지 분류 모델</p>
+      </div>
+      <div class="status-pill">
+        <div class="dot"></div>
+        <span id="status-text">대기 중</span>
+      </div>
+    </div>
+
+    <div class="alert-banner">
+      <i class="ti ti-alert-triangle"></i>
+      <span>⚠️ 졸음 감지됨! Sleeping 상태입니다.</span>
+    </div>
+
+    <div class="inner-box">
+      <div class="model-tag">
+        <div class="dot"></div>
+        Teachable Machine · Image Model
+      </div>
+
+      <button id="start-btn" onclick="init()">
+        <i class="ti ti-camera"></i>
+        Start Camera
+      </button>
+
+      <div class="webcam-section">
+        <div id="webcam-container">
+          <div class="placeholder" id="placeholder">
+            <i class="ti ti-video-off"></i>
+            <span>카메라가 여기에 표시됩니다</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="label-title">예측 결과</div>
+      <div id="label-container"></div>
+    </div>
+
+    <div class="outer-footer">
+      <i class="ti ti-info-circle"></i>
+      <span>Powered by TensorFlow.js &amp; Teachable Machine</span>
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+  <script>
+    const URL = "https://teachablemachine.withgoogle.com/models/Q-gVQz80H/";
+    let model, webcam, labelContainer, maxPredictions;
+
+    async function init() {
+      const btn = document.getElementById('start-btn');
+      btn.innerHTML = '<i class="ti ti-loader"></i> 로딩 중...';
+      btn.disabled = true;
+
+      model = await tmImage.load(URL + "model.json", URL + "metadata.json");
+      maxPredictions = model.getTotalClasses();
+
+      webcam = new tmImage.Webcam(200, 200, true);
+      await webcam.setup();
+      await webcam.play();
+      window.requestAnimationFrame(loop);
+
+      document.getElementById('placeholder')?.remove();
+      document.getElementById("webcam-container").appendChild(webcam.canvas);
+
+      labelContainer = document.getElementById("label-container");
+      labelContainer.innerHTML = '';
+
+      for (let i = 0; i < maxPredictions; i++) {
+        const row = document.createElement("div");
+        row.className = "label-row";
+        row.id = `row-${i}`;
+        row.innerHTML = `
+          <span class="label-name" id="name-${i}">클래스 ${i + 1}</span>
+          <div class="bar-track"><div class="bar-fill" id="bar-${i}"></div></div>
+          <span class="label-prob" id="prob-${i}">0%</span>
+        `;
+        labelContainer.appendChild(row);
+      }
+
+      document.getElementById('status-text').textContent = '감지 중';
+      btn.style.display = 'none';
+    }
+
+    async function loop() {
+      webcam.update();
+      await predict();
+      window.requestAnimationFrame(loop);
+    }
+
+    async function predict() {
+      const prediction = await model.predict(webcam.canvas);
+
+      let topIndex = 0;
+      let topProb = 0;
+      for (let i = 0; i < maxPredictions; i++) {
+        if (prediction[i].probability > topProb) {
+          topProb = prediction[i].probability;
+          topIndex = i;
+        }
+      }
+
+      const topClassName = prediction[topIndex].className;
+      document.getElementById('debug-title').textContent = "인식: " + topClassName;
+      
+      if (topIndex === 0) {
+        document.body.className = 'active-mode';
+        document.getElementById('status-text').textContent = '정상 작동 중';
+        document.getElementById('header-icon-i').className = 'ti ti-shield-check';
+      } else {
+        document.body.className = 'alert-mode';
+        document.getElementById('status-text').textContent = '⚠️ 졸음 감지';
+        document.getElementById('header-icon-i').className = 'ti ti-alert-triangle';
+      }
+
+      for (let i = 0; i < maxPredictions; i++) {
+        const pct = Math.round(prediction[i].probability * 100);
+        const className = prediction[i].className;
+        const row = document.getElementById(`row-${i}`);
+
+        document.getElementById(`name-${i}`).textContent = className;
+        document.getElementById(`bar-${i}`).style.width = pct + '%';
+        document.getElementById(`prob-${i}`).textContent = pct + '%';
+
+        if (i === 0) {
+          row.classList.add('active-highlight');
+          row.classList.remove('sleeping-highlight');
+        } else {
+          row.classList.add('sleeping-highlight');
+          row.classList.remove('active-highlight');
+        }
+      }
+    }
+  </script>
+
+</body>
+</html>
